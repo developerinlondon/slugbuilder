@@ -49,17 +49,25 @@ function ensure_indent() {
 
 ## Load source from STDIN
 
-cat | tar -xC $app_dir
+cat | tar -xmC $app_dir
 
 # In heroku, there are two separate directories, and some
 # buildpacks expect that.
 cp -r $app_dir/. $build_root
 
+# Grant the slugbuilder user access to all relevant
+# directories, then run the rest as slugbuilder
+chown -R slugbuilder:slugbuilder	$app_dir \
+					$cache_root \
+					$buildpack_root \
+					$build_root
+su slugbuilder
+
 ## Buildpack fixes
 
-export REQUEST_ID=$(openssl rand -base64 32)
 export APP_DIR="$app_dir"
 export HOME="$app_dir"
+export REQUEST_ID=$(openssl rand -base64 32)
 
 ## Buildpack detection
 
@@ -71,7 +79,7 @@ if [[ -n "$BUILDPACK_URL" ]]; then
 
 	buildpack="$buildpack_root/custom"
 	rm -fr "$buildpack"
-	git clone --depth=1 "$BUILDPACK_URL" "$buildpack"
+	git clone --quiet --depth=1 "$BUILDPACK_URL" "$buildpack"
 	selected_buildpack="$buildpack"
 	buildpack_name=$($buildpack/bin/detect "$build_root") && selected_buildpack=$buildpack
 else
@@ -110,13 +118,13 @@ fi
 ## Produce slug
 
 if [[ -f "$build_root/.slugignore" ]]; then
-	tar --exclude='.git' -X "$build_root/.slugignore" -C $build_root -czf $slug_file . | cat
+	tar --exclude='.git' --use-compress-program=pigz -X "$build_root/.slugignore" -C $build_root -cf $slug_file . | cat
 else
-	tar --exclude='.git' -C $build_root -czf $slug_file . | cat
+	tar --exclude='.git' --use-compress-program=pigz -C $build_root -cf $slug_file . | cat
 fi
   
 if [[ "$slug_file" != "-" ]]; then
-	slug_size=$(du -Sh /tmp/slug.tgz | cut -f1)
+	slug_size=$(du -Sh "$slug_file" | cut -f1)
 	echo_title "Compiled slug size is $slug_size"
 
 	if [[ $put_url ]]; then
