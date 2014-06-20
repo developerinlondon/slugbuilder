@@ -1,5 +1,5 @@
 FROM progrium/cedarish
-MAINTAINER progrium "progrium@gmail.com"
+MAINTAINER OpDemand <info@opdemand.com>
 
 RUN useradd slugbuilder --home-dir /app
 
