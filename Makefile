@@ -1,7 +1,6 @@
-build: Dockerfile builder/*
-	docker build -t flynn/slugbuilder .
-	touch build
+all:
+	docker build -t deis/slugbuilder .
 
 .PHONY: clean
 clean:
-	rm -rf build
+	docker rmi -f deis/slugbuilder
