@@ -1,5 +1,5 @@
-FROM progrium/cedarish
-MAINTAINER OpDemand <info@opdemand.com>
+FROM developerinlondon/cedarish
+MAINTAINER Nayeem Syed <nayeem@cronycle.com>
 
 RUN useradd slugbuilder --home-dir /app
 

@@ -44,7 +44,7 @@ function ensure_indent() {
       echo $'\e[1G      ' "$line" | output_redirect
     fi
 
-  done 
+  done
 }
 
 ## Load source from STDIN
@@ -122,12 +122,12 @@ if [[ -f "$build_root/.slugignore" ]]; then
 else
 	tar --exclude='.git' --use-compress-program=pigz -C $build_root -cf $slug_file . | cat
 fi
-  
+
 if [[ "$slug_file" != "-" ]]; then
 	slug_size=$(du -Sh "$slug_file" | cut -f1)
 	echo_title "Compiled slug size is $slug_size"
 
 	if [[ $put_url ]]; then
-		curl -0 -s -o /dev/null -X PUT -T $slug_file "$put_url" 
+		curl -0 -s -o /dev/null -X PUT -T $slug_file "$put_url"
 	fi
 fi
